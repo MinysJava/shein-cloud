@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="shein-cloud-client" />
         <module name="shein-cloud-server" />
+        <module name="shein-cloud-utils" />
       </profile>
     </annotationProcessing>
   </component>

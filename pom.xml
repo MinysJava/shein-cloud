@@ -12,6 +12,7 @@
     <modules>
         <module>shein-cloud-client</module>
         <module>shein-cloud-server</module>
+        <module>shein-cloud-utils</module>
     </modules>
 
     <properties>
@@ -23,7 +24,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.29.Final</version>
+            <version>4.1.42.Final</version>
         </dependency>
     </dependencies>
 </project>
