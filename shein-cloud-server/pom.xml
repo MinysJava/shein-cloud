@@ -10,6 +10,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>shein-cloud-server</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>shein.dmitrii</groupId>
+            <artifactId>shein-cloud-utils</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 
 </project>
