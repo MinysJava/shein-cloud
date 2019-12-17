@@ -1,37 +1,38 @@
-import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
-import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
-
 import java.io.IOException;
-import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public class Client {
     public static void main(String[] args) {
-        ObjectEncoderOutputStream oeos = null;
-        ObjectDecoderInputStream odis = null;
+        Network.start();
 
-        try(Socket socket = new Socket("localHost", 8189)){
-            oeos = new ObjectEncoderOutputStream(socket.getOutputStream());
-            MyMessage textMessage = new MyMessage("Hello Server!!");
-            oeos.writeObject(textMessage);
-            oeos.flush();
-            odis = new ObjectDecoderInputStream(socket.getInputStream(), 50 * 1024 * 1024);
-            MyMessage msgFromServer = (MyMessage)odis.readObject();
-            System.out.println("Answer from server: " + msgFromServer.getText());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } finally {
+
+//        Thread t = new Thread(() -> {
             try {
-                oeos.close();
-            } catch (IOException e) {
+                Network.sendMsg(new FileMessage(Paths.get("client_file/redCircle.png" )));
+                Network.sendMsg(new Request("rename","poem_server.txt", "super_new_poem.txt"));
+                Network.sendMsg(new Request("send", "music.mp3"));
+                Network.sendMsg(new Request("delete", "del.txt"));
+
+                while (true) {
+                    AbstractMessage am = Network.readObject();
+                    if (am instanceof FileMessage) {
+                        FileMessage fm = (FileMessage) am;
+                        Files.write(Paths.get("client_file/" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+
+                    }
+                }
+            } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
+            } finally {
+                Network.stop();
             }
-            try {
-                odis.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+//        });
+//        t.setDaemon(true);
+//        t.start();
+
+
+
     }
 }
