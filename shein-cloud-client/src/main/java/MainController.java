@@ -1,3 +1,5 @@
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
@@ -23,12 +25,12 @@ public class MainController implements Initializable {
         Network.start();
 
 
-//        Thread t = new Thread(() -> {
+        Thread t = new Thread(() -> {
         try {
-            Network.sendMsg(new FileMessage(Paths.get("client_file/redCircle.png" )));
-            Network.sendMsg(new Request("rename","poem_server.txt", "super_new_poem.txt"));
-            Network.sendMsg(new Request("send", "music.mp3"));
-            Network.sendMsg(new Request("delete", "del.txt"));
+//            Network.sendMsg(new FileMessage(Paths.get("client_file/redCircle.png" )));
+//            Network.sendMsg(new Request("rename","poem_server.txt", "super_new_poem.txt"));
+//            Network.sendMsg(new Request("send", "music.mp3"));
+//            Network.sendMsg(new Request("delete", "del.txt"));
 
             while (true) {
                 AbstractMessage am = Network.readObject();
@@ -43,11 +45,39 @@ public class MainController implements Initializable {
         } finally {
             Network.stop();
         }
-//        });
-//        t.setDaemon(true);
-//        t.start();
+        });
+        t.setDaemon(true);
+        t.start();
+        refreshLocalFilesList();
 
 
 
+    }
+
+    public void refreshLocalFilesList() {
+        updateUI(() -> {
+            try {
+                filesListClient.getItems().clear();
+                Files.list(Paths.get("client_file/User")).map(p -> p.getFileName().toString()).forEach(o -> filesListClient.getItems().add(o));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public static void updateUI(Runnable r) {
+        if (Platform.isFxApplicationThread()) {
+            r.run();
+        } else {
+            Platform.runLater(r);
+        }
+    }
+
+    public void sendFile(ActionEvent actionEvent) {
+        try {
+            Network.sendMsg(new FileMessage(Paths.get("client_file/User/redCircle.png" )));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

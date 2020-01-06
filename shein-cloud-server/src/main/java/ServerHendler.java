@@ -38,7 +38,7 @@ public class ServerHendler extends ChannelInboundHandlerAdapter {
                             ctx.writeAndFlush(new Message("Request 'rename': File not found."));
                         }
                         break;
-                    case ("send"):
+                    case ("download"):
                         if (Files.exists(Paths.get("server_file/" + rf.getFilename()))) {
                             FileMessage fms = new FileMessage(Paths.get("server_file/" + rf.getFilename()));
                             ctx.writeAndFlush(fms);

@@ -8,7 +8,7 @@ public class Client extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/Login.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/main.fxml"));
         Parent root = fxmlLoader.load();
         primaryStage.setTitle("Shein_Cloud Client");
         Scene scene = new Scene(root,400, 200);
