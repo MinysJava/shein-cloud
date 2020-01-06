@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="rootNode" alignment="CENTER" prefHeight="211.0" prefWidth="533.0" style="-fx-background-color: linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #bbb 100%);" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
+    <HBox>
+        <VBox>
+            <ListView fx:id="filesListClient" prefHeight="188.0" prefWidth="274.0" VBox.vgrow="ALWAYS" />
+            <HBox>
+                <Button text="Отправить" />
+                <Button text="Переименовать" />
+                <Button text="Удалить" />
+            </HBox>
+        </VBox>
+        <VBox>
+            <ListView fx:id="filesListServer" prefHeight="188.0" prefWidth="266.0" VBox.vgrow="ALWAYS" />
+            <HBox>
+                <Button text="Скачать" />
+                <Button text="Переименовать" />
+                <Button text="Удалить" />
+            </HBox>
+        </VBox>
+    </HBox>
+        <ListView fx:id="textResultList" prefHeight="92.0" prefWidth="533.0" VBox.vgrow="ALWAYS" />
+
+</VBox>
