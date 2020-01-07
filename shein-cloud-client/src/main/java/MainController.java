@@ -119,7 +119,7 @@ public class MainController implements Initializable {
         try {
             root = FXMLLoader.load(getClass().getResource("/Scene.fxml"));
             Stage stage = new Stage();
-            Scene scene = new Scene(root);
+            Scene scene = new Scene(root, 200, 100);
             stage.setScene(scene);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
