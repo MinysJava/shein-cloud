@@ -26,7 +26,6 @@ public class MainController implements Initializable {
     @FXML
     ListView<String> textResultList;
 
-//    private static String fileName;
     private static String oldName;
 
     @Override
@@ -109,7 +108,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public void renameScene(ActionEvent actionEvent) {
+    public void renameFile(ActionEvent actionEvent) {
         Parent root = null;
         try {
             root = FXMLLoader.load(getClass().getResource("/Scene.fxml"));
@@ -131,6 +130,20 @@ public class MainController implements Initializable {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void deleteFile(ActionEvent actionEvent) {
+        if(filesListClient.getSelectionModel().getSelectedItem() != null) {
+            try {
+                Files.delete(Paths.get("client_file/User/" + filesListClient.getSelectionModel().getSelectedItem()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            refreshClientFilesList();
+
+        } else if(filesListServer.getSelectionModel().getSelectedItem() != null) {
+            Network.sendMsg(new Request("delete", filesListServer.getSelectionModel().getSelectedItem()));
         }
     }
 }

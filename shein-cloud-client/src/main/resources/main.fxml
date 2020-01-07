@@ -11,16 +11,14 @@
             <ListView fx:id="filesListClient"/>
             <HBox>
                 <Button onAction="#sendFile" text="Отправить"/>
-                <Button onAction="#renameScene" text="Переименовать"/>
-                <Button text="Удалить"/>
+                <Button onAction="#renameFile" text="Переименовать"/>
+                <Button onAction="#deleteFile" text="Удалить"/>
             </HBox>
         </VBox>
         <VBox HBox.hgrow="ALWAYS">
             <ListView fx:id="filesListServer"/>
             <HBox>
                 <Button text="Скачать"/>
-                <Button text="Переименовать"/>
-                <Button text="Удалить"/>
             </HBox>
         </VBox>
     </HBox>
