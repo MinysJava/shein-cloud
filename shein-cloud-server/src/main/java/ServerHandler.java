@@ -48,6 +48,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                         if (Files.exists(Paths.get("server_file/User/" + rf.getFilename()))) {
                             FileMessage fms = new FileMessage(Paths.get("server_file/User/" + rf.getFilename()));
                             ctx.writeAndFlush(fms);
+                            ctx.writeAndFlush(new Request("c_refresh"));
                         } else {
                             ctx.writeAndFlush(new Message("Request 'send': File not found."));
                         }
@@ -86,7 +87,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     private void refreshServerFileList(ChannelHandlerContext ctx){
         try {
             Files.list(Paths.get("server_file/User/")).map(p -> p.getFileName().toString()).forEach(o -> fileServerList.add(o));
-            ctx.writeAndFlush(new Request("refresh", fileServerList));
+            ctx.writeAndFlush(new Request("s_refresh", fileServerList));
             fileServerList.clear();
         } catch (IOException e) {
             e.printStackTrace();

@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.Timer;
 
 public class MainController implements Initializable {
     @FXML
@@ -44,9 +45,12 @@ public class MainController implements Initializable {
                 if (am instanceof Request){
                     Request rf = (Request) am;
                     switch (rf.getCommand()){
-                        case ("refresh"):
+                        case ("s_refresh"):
                            refreshServerFilesList(rf.getFileList());
                            break;
+                        case ("c_refresh"):
+                            refreshClientFilesList();
+                            break;
                     }
                 }
                 if (am instanceof Message){
@@ -102,7 +106,9 @@ public class MainController implements Initializable {
 
     public void sendFile(ActionEvent actionEvent) {
         try {
-            Network.sendMsg(new FileMessage(Paths.get("client_file/User/" + filesListClient.getSelectionModel().getSelectedItem())));
+            if(filesListClient.getSelectionModel().getSelectedItem() != null) {
+                Network.sendMsg(new FileMessage(Paths.get("client_file/User/" + filesListClient.getSelectionModel().getSelectedItem())));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -145,5 +151,12 @@ public class MainController implements Initializable {
         } else if(filesListServer.getSelectionModel().getSelectedItem() != null) {
             Network.sendMsg(new Request("delete", filesListServer.getSelectionModel().getSelectedItem()));
         }
+    }
+
+    public void downloadFile(ActionEvent actionEvent) {
+        if(filesListServer.getSelectionModel().getSelectedItem() != null) {
+            Network.sendMsg(new Request("download", filesListServer.getSelectionModel().getSelectedItem()));
+        }
+        refreshClientFilesList();
     }
 }

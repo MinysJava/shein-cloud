@@ -18,7 +18,7 @@
         <VBox HBox.hgrow="ALWAYS">
             <ListView fx:id="filesListServer"/>
             <HBox>
-                <Button text="Скачать"/>
+                <Button onAction="#downloadFile" text="Скачать"/>
             </HBox>
         </VBox>
     </HBox>
