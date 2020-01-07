@@ -2,7 +2,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
-import javax.swing.text.html.ListView;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,8 +24,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             if (msg instanceof FileMessage) {
                 FileMessage fm = (FileMessage) msg;
                 Files.write(Paths.get("server_file/User/" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+                ctx.writeAndFlush(new Message("Файл успешно передан"));
                 refreshServerFileList(ctx);
-
             }
             if(msg instanceof Request){
                 Request rf = (Request) msg;
@@ -67,13 +66,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                         }
                         break;
                     case ("refresh"):
-//                        System.out.println("server refresh");
-//                        Files.list(Paths.get("server_file/User/")).map(p -> p.getFileName().toString()).forEach(o -> fileServerList.add(o));
-//                        ctx.writeAndFlush(new Request("refresh", fileServerList));
                         refreshServerFileList(ctx);
                         break;
-
-
                 }
             }
         } catch (IOException e) {

@@ -5,24 +5,24 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="rootNode" alignment="CENTER"  prefHeight="500.0" prefWidth="600.0" style="-fx-background-color: linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #bbb 100%);" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
-    <HBox HBox.hgrow="ALWAYS" >
+<VBox fx:id="rootNode" alignment="CENTER"  style="-fx-background-color: linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #bbb 100%);" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
+    <HBox HBox.hgrow="ALWAYS">
         <VBox HBox.hgrow="ALWAYS">
-            <ListView fx:id="filesListClient" prefHeight="200.0" prefWidth="300.0" VBox.vgrow="ALWAYS" />
+            <ListView fx:id="filesListClient"/>
             <HBox>
-                <Button onAction="#sendFile" text="Отправить" />
-                <Button text="Переименовать" />
-                <Button text="Удалить" />
+                <Button onAction="#sendFile" text="Отправить"/>
+                <Button onAction="#renameScene" text="Переименовать"/>
+                <Button text="Удалить"/>
             </HBox>
         </VBox>
         <VBox HBox.hgrow="ALWAYS">
-            <ListView fx:id="filesListServer" prefHeight="200.0" prefWidth="300.0" VBox.vgrow="ALWAYS" />
+            <ListView fx:id="filesListServer"/>
             <HBox>
-                <Button text="Скачать" />
-                <Button text="Переименовать" />
-                <Button text="Удалить" />
+                <Button text="Скачать"/>
+                <Button text="Переименовать"/>
+                <Button text="Удалить"/>
             </HBox>
         </VBox>
     </HBox>
-        <ListView fx:id="textResultList" prefHeight="100.0" prefWidth="600.0" VBox.vgrow="ALWAYS" />
+    <ListView fx:id="textResultList"/>
 </VBox>

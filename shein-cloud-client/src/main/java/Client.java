@@ -11,7 +11,7 @@ public class Client extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/main.fxml"));
         Parent root = fxmlLoader.load();
         primaryStage.setTitle("Shein_Cloud Client");
-        Scene scene = new Scene(root,400, 200);
+        Scene scene = new Scene(root,600, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

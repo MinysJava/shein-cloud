@@ -1,9 +1,13 @@
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -22,36 +26,33 @@ public class MainController implements Initializable {
     @FXML
     ListView<String> textResultList;
 
+//    private static String fileName;
+    private static String oldName;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Network.start();
         Network.sendMsg(new Request("refresh"));
-//        System.out.println("client send refresh");
-
 
         Thread t = new Thread(() -> {
         try {
-//            Network.sendMsg(new Request("refresh"));
-//            Network.sendMsg(new FileMessage(Paths.get("client_file/redCircle.png" )));
-//            Network.sendMsg(new Request("rename","poem_server.txt", "super_new_poem.txt"));
-//            Network.sendMsg(new Request("send", "music.mp3"));
-//            Network.sendMsg(new Request("delete", "del.txt"));
-
             while (true) {
                 AbstractMessage am = Network.readObject();
                 if (am instanceof FileMessage) {
                     FileMessage fm = (FileMessage) am;
                     Files.write(Paths.get("client_file/User/" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
                 }
-
                 if (am instanceof Request){
                     Request rf = (Request) am;
                     switch (rf.getCommand()){
                         case ("refresh"):
-//                            System.out.println("return refresh");
                            refreshServerFilesList(rf.getFileList());
                            break;
                     }
+                }
+                if (am instanceof Message){
+                    Message msg = (Message) am;
+                    showMsg(msg.getText());
                 }
             }
         } catch (ClassNotFoundException | IOException e) {
@@ -63,9 +64,12 @@ public class MainController implements Initializable {
         t.setDaemon(true);
         t.start();
         refreshClientFilesList();
+    }
 
-
-
+    private void showMsg(String text) {
+        updateUI(() -> {
+            textResultList.getItems().add(text);
+        });
     }
 
     private void refreshClientFilesList() {
@@ -81,17 +85,13 @@ public class MainController implements Initializable {
 
     private void refreshServerFilesList(ArrayList arrayListServer) {
         updateUI(() -> {
-//            Network.sendMsg(new Request("refresh"));
             filesListServer.getItems().clear();
             for (Object o : arrayListServer) {
 
                 filesListServer.getItems().add((String) o);
             }
-//                Files.list(Paths.get("client_file/User")).map(p -> p.getFileName().toString()).forEach(o -> filesListClient.getItems().add(o));
         });
     }
-
-
 
     private static void updateUI(Runnable r) {
         if (Platform.isFxApplicationThread()) {
@@ -103,7 +103,32 @@ public class MainController implements Initializable {
 
     public void sendFile(ActionEvent actionEvent) {
         try {
-            Network.sendMsg(new FileMessage(Paths.get("client_file/User/redCircle.png" )));
+            Network.sendMsg(new FileMessage(Paths.get("client_file/User/" + filesListClient.getSelectionModel().getSelectedItem())));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void renameScene(ActionEvent actionEvent) {
+        Parent root = null;
+        try {
+            root = FXMLLoader.load(getClass().getResource("/Scene.fxml"));
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+            if(filesListClient.getSelectionModel().getSelectedItem() != null) {
+                if (SceneController.fileName != null) {
+                    Path oldName = Paths.get("client_file/User/" + filesListClient.getSelectionModel().getSelectedItem());
+                    Files.move(oldName, oldName.resolveSibling(SceneController.fileName));
+                    refreshClientFilesList();
+                }
+            } else if(filesListServer.getSelectionModel().getSelectedItem() != null) {
+                if (SceneController.fileName != null) {
+                    Network.sendMsg(new Request("rename", filesListServer.getSelectionModel().getSelectedItem(), SceneController.fileName));
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
