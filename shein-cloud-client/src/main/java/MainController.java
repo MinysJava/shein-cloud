@@ -1,3 +1,4 @@
+import io.netty.util.Timeout;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -6,6 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -26,14 +28,15 @@ public class MainController implements Initializable {
     ListView<String> filesListServer;
     @FXML
     ListView<String> textResultList;
+    @FXML
+    VBox rootNode;
 
     private static String nikName;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-//        Network.start();
         Network.sendMsg(new Request("loginOk"));
-        Network.sendMsg(new Request("refresh"));
+
 
         Thread t = new Thread(() -> {
         try {
@@ -50,16 +53,11 @@ public class MainController implements Initializable {
                            refreshServerFilesList(rf.getFileList());
                            break;
                         case ("c_refresh"):
-                            refreshClientFilesList();
+                            refreshClientFilesList(nikName);
                             break;
                         case ("loginOk"):
-                            nikName = rf.getCommand();
-                            System.out.println(nikName);
-                            Path path = Paths.get("client_file/" + nikName);
-                            if(path.getName(1) == null ) {
-                                Files.createDirectories(path);
-                            }
-                            refreshClientFilesList();
+                            nikName = rf.getFilename();
+                            refreshClientFilesList(nikName);
                             break;
                     }
                 }
@@ -76,6 +74,7 @@ public class MainController implements Initializable {
         });
         t.setDaemon(true);
         t.start();
+        Network.sendMsg(new Request("refresh"));
 
     }
 
@@ -85,11 +84,11 @@ public class MainController implements Initializable {
         });
     }
 
-    private void refreshClientFilesList() {
+    private void refreshClientFilesList(String user) {
         updateUI(() -> {
             try {
                 filesListClient.getItems().clear();
-                Files.list(Paths.get("client_file/" + nikName + "/")).map(p -> p.getFileName().toString()).forEach(o -> filesListClient.getItems().add(o));
+                Files.list(Paths.get("client_file/" + user + "/")).map(p -> p.getFileName().toString()).forEach(o -> filesListClient.getItems().add(o));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -100,7 +99,6 @@ public class MainController implements Initializable {
         updateUI(() -> {
             filesListServer.getItems().clear();
             for (Object o : arrayListServer) {
-
                 filesListServer.getItems().add((String) o);
             }
         });
@@ -137,7 +135,7 @@ public class MainController implements Initializable {
                 if (SceneController.fileName != null) {
                     Path oldName = Paths.get("client_file/" + nikName + "/" + filesListClient.getSelectionModel().getSelectedItem());
                     Files.move(oldName, oldName.resolveSibling(SceneController.fileName));
-                    refreshClientFilesList();
+                    refreshClientFilesList(nikName);
                 }
             } else if(filesListServer.getSelectionModel().getSelectedItem() != null) {
                 if (SceneController.fileName != null) {
@@ -156,7 +154,7 @@ public class MainController implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            refreshClientFilesList();
+            refreshClientFilesList(nikName);
 
         } else if(filesListServer.getSelectionModel().getSelectedItem() != null) {
             Network.sendMsg(new Request("delete", filesListServer.getSelectionModel().getSelectedItem()));
@@ -167,6 +165,6 @@ public class MainController implements Initializable {
         if(filesListServer.getSelectionModel().getSelectedItem() != null) {
             Network.sendMsg(new Request("download", filesListServer.getSelectionModel().getSelectedItem()));
         }
-        refreshClientFilesList();
+        refreshClientFilesList(nikName);
     }
 }

@@ -10,15 +10,10 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
@@ -31,11 +26,6 @@ public class LoginController implements Initializable {
     @FXML
     VBox mainLogoStage;
 
-//    public int id;
-
-//    public MainController backController;
-
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Network.start();
@@ -47,13 +37,6 @@ public class LoginController implements Initializable {
                         Request rf = (Request) am;
                         switch (rf.getCommand()){
                             case ("loginOk"):
-                                //                                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/Login.fxml"));
-//                                    Parent root = fxmlLoader.load();
-//                                    primaryStage.setTitle("Autorization");
-//                                    Scene scene = new Scene(root,400, 200);
-//                                    primaryStage.setScene(scene);
-//                                    primaryStage.show();
-
                                 Platform.runLater(new Runnable() {
                                     @Override
                                     public void run() {
@@ -65,21 +48,13 @@ public class LoginController implements Initializable {
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         }
-                                        stage.setTitle("Shein_Cloud Client");
+                                        stage.setTitle(rf.getFilename());
                                         Scene scene = new Scene(root,600, 600);
                                         stage.setScene(scene);
                                         stage.show();
-
                                         mainLogoStage.getScene().getWindow().hide();
                                     }
                                 });
-
-//                                    LoginController lc = (LoginController) loader.getController();
-
-
-//                                    stage.initModality(Modality.APPLICATION_MODAL);
-//                                    stage.showAndWait();
-
                                 break;
                             case ("loginFail"):
                                 Platform.runLater(new Runnable() {
@@ -89,19 +64,14 @@ public class LoginController implements Initializable {
                                         alert.showAndWait();
                                     }
                                 });
-
                                 break;
                         }
                         break;
                     }
-
                 }
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
-//            finally {
-//                Network.stop();
-//            }
         });
         t.setDaemon(true);
         t.start();
@@ -109,8 +79,5 @@ public class LoginController implements Initializable {
 
     public void auth(ActionEvent actionEvent) {
         Network.sendMsg( new LoginRequest("login", login.getText(), password.getText()));
-
-
-
     }
 }

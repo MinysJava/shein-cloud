@@ -75,7 +75,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                         refreshServerFileList(ctx);
                         break;
                     case ("loginOk"):
-                        ctx.writeAndFlush(new Request(nikName));
+                        ctx.writeAndFlush(new Request("loginOk", nikName));
+
                         break;
                 }
             }
