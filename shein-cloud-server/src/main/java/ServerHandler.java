@@ -12,6 +12,11 @@ import java.util.ArrayList;
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 
     ArrayList<String> fileServerList = new ArrayList<>();
+    private String nikName;
+
+    public ServerHandler (String nikName){
+        this.nikName = nikName;
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -23,7 +28,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         try {
             if (msg instanceof FileMessage) {
                 FileMessage fm = (FileMessage) msg;
-                Files.write(Paths.get("server_file/User/" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+                Files.write(Paths.get("server_file/" + nikName + "/" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
                 ctx.writeAndFlush(new Message("Файл успешно передан"));
                 refreshServerFileList(ctx);
             }
@@ -31,10 +36,10 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                 Request rf = (Request) msg;
                 switch (rf.getCommand()){
                     case ("rename"):
-                        if (Files.exists(Paths.get("server_file/User/" + rf.getFilename()))){
-                            Path oldname = Paths.get("server_file/User/" + rf.getFilename());
+                        if (Files.exists(Paths.get("server_file/" + nikName + "/" + rf.getFilename()))){
+                            Path oldname = Paths.get("server_file/" + nikName + "/" + rf.getFilename());
                             Files.move(oldname, oldname.resolveSibling(rf.getNewFilename()));
-                            if(Files.exists(Paths.get("server_file/User/" + rf.getNewFilename()))){
+                            if(Files.exists(Paths.get("server_file/" + nikName + "/" + rf.getNewFilename()))){
                                 refreshServerFileList(ctx);
                                 ctx.writeAndFlush(new Message("Rename File successful."));
                             } else {
@@ -45,8 +50,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                         }
                         break;
                     case ("download"):
-                        if (Files.exists(Paths.get("server_file/User/" + rf.getFilename()))) {
-                            FileMessage fms = new FileMessage(Paths.get("server_file/User/" + rf.getFilename()));
+                        if (Files.exists(Paths.get("server_file/" + nikName + "/" + rf.getFilename()))) {
+                            FileMessage fms = new FileMessage(Paths.get("server_file/" + nikName + "/" + rf.getFilename()));
                             ctx.writeAndFlush(fms);
                             ctx.writeAndFlush(new Request("c_refresh"));
                         } else {
@@ -54,9 +59,9 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                         }
                         break;
                     case ("delete"):
-                        if (Files.exists(Paths.get("server_file/User/" + rf.getFilename()))) {
-                            Files.delete(Paths.get("server_file/User/" + rf.getFilename()));
-                            if(Files.exists(Paths.get("server_file/User/" + rf.getFilename()))){
+                        if (Files.exists(Paths.get("server_file/" + nikName + "/" + rf.getFilename()))) {
+                            Files.delete(Paths.get("server_file/" + nikName + "/" + rf.getFilename()));
+                            if(Files.exists(Paths.get("server_file/" + nikName + "/" + rf.getFilename()))){
                                 ctx.writeAndFlush(new Message("Delete File error."));
                             } else {
                                 refreshServerFileList(ctx);
@@ -68,6 +73,9 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                         break;
                     case ("refresh"):
                         refreshServerFileList(ctx);
+                        break;
+                    case ("loginOk"):
+                        ctx.writeAndFlush(new Request(nikName));
                         break;
                 }
             }
@@ -86,7 +94,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 
     private void refreshServerFileList(ChannelHandlerContext ctx){
         try {
-            Files.list(Paths.get("server_file/User/")).map(p -> p.getFileName().toString()).forEach(o -> fileServerList.add(o));
+            Files.list(Paths.get("server_file/" + nikName + "/")).map(p -> p.getFileName().toString()).forEach(o -> fileServerList.add(o));
             ctx.writeAndFlush(new Request("s_refresh", fileServerList));
             fileServerList.clear();
         } catch (IOException e) {

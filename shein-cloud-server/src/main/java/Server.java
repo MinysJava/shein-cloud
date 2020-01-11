@@ -11,6 +11,13 @@ public class Server {
     public  void run() throws Exception {
         EventLoopGroup poolConnect = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
+
+        AuthService.connection();
+
+//        AuthService.setNewUsers(1, "login1", "pass1", "nik1");
+//        AuthService.setNewUsers(2, "login2", "pass2", "nik2");
+//        AuthService.setNewUsers(3, "login3", "pass2", "nik3");
+
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(poolConnect, workerGroup)
@@ -22,7 +29,7 @@ public class Server {
                             ch.pipeline().addLast(
                                     new ObjectDecoder(50 * 1024 * 1024, ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
-                                    new ServerHandler()
+                                    new AuthService()
                             );
                         }
                     }).childOption(ChannelOption.SO_KEEPALIVE, true);

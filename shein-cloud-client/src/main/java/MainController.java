@@ -27,11 +27,12 @@ public class MainController implements Initializable {
     @FXML
     ListView<String> textResultList;
 
-    private static String oldName;
+    private static String nikName;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        Network.start();
+//        Network.start();
+        Network.sendMsg(new Request("loginOk"));
         Network.sendMsg(new Request("refresh"));
 
         Thread t = new Thread(() -> {
@@ -40,7 +41,7 @@ public class MainController implements Initializable {
                 AbstractMessage am = Network.readObject();
                 if (am instanceof FileMessage) {
                     FileMessage fm = (FileMessage) am;
-                    Files.write(Paths.get("client_file/User/" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+                    Files.write(Paths.get("client_file/" + nikName + "/" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
                 }
                 if (am instanceof Request){
                     Request rf = (Request) am;
@@ -49,6 +50,15 @@ public class MainController implements Initializable {
                            refreshServerFilesList(rf.getFileList());
                            break;
                         case ("c_refresh"):
+                            refreshClientFilesList();
+                            break;
+                        case ("loginOk"):
+                            nikName = rf.getCommand();
+                            System.out.println(nikName);
+                            Path path = Paths.get("client_file/" + nikName);
+                            if(path.getName(1) == null ) {
+                                Files.createDirectories(path);
+                            }
                             refreshClientFilesList();
                             break;
                     }
@@ -66,7 +76,7 @@ public class MainController implements Initializable {
         });
         t.setDaemon(true);
         t.start();
-        refreshClientFilesList();
+
     }
 
     private void showMsg(String text) {
@@ -79,7 +89,7 @@ public class MainController implements Initializable {
         updateUI(() -> {
             try {
                 filesListClient.getItems().clear();
-                Files.list(Paths.get("client_file/User")).map(p -> p.getFileName().toString()).forEach(o -> filesListClient.getItems().add(o));
+                Files.list(Paths.get("client_file/" + nikName + "/")).map(p -> p.getFileName().toString()).forEach(o -> filesListClient.getItems().add(o));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -107,7 +117,7 @@ public class MainController implements Initializable {
     public void sendFile(ActionEvent actionEvent) {
         try {
             if(filesListClient.getSelectionModel().getSelectedItem() != null) {
-                Network.sendMsg(new FileMessage(Paths.get("client_file/User/" + filesListClient.getSelectionModel().getSelectedItem())));
+                Network.sendMsg(new FileMessage(Paths.get("client_file/" + nikName + "/" + filesListClient.getSelectionModel().getSelectedItem())));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -125,7 +135,7 @@ public class MainController implements Initializable {
             stage.showAndWait();
             if(filesListClient.getSelectionModel().getSelectedItem() != null) {
                 if (SceneController.fileName != null) {
-                    Path oldName = Paths.get("client_file/User/" + filesListClient.getSelectionModel().getSelectedItem());
+                    Path oldName = Paths.get("client_file/" + nikName + "/" + filesListClient.getSelectionModel().getSelectedItem());
                     Files.move(oldName, oldName.resolveSibling(SceneController.fileName));
                     refreshClientFilesList();
                 }
@@ -142,7 +152,7 @@ public class MainController implements Initializable {
     public void deleteFile(ActionEvent actionEvent) {
         if(filesListClient.getSelectionModel().getSelectedItem() != null) {
             try {
-                Files.delete(Paths.get("client_file/User/" + filesListClient.getSelectionModel().getSelectedItem()));
+                Files.delete(Paths.get("client_file/" + nikName + "/" + filesListClient.getSelectionModel().getSelectedItem()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
