@@ -78,6 +78,6 @@ public class LoginController implements Initializable {
     }
 
     public void auth(ActionEvent actionEvent) {
-        Network.sendMsg( new LoginRequest("login", login.getText(), password.getText()));
+        Network.sendMsg( new LoginRequest(login.getText(), password.getText()));
     }
 }

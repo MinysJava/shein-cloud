@@ -1,10 +1,6 @@
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.*;
 
 public class AuthService extends ChannelInboundHandlerAdapter {
@@ -48,7 +44,6 @@ public class AuthService extends ChannelInboundHandlerAdapter {
 
         try {
             int t = stmt.executeUpdate(sql);
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -60,16 +55,12 @@ public class AuthService extends ChannelInboundHandlerAdapter {
 
         try {
             ResultSet rs = stmt.executeQuery(sql);
-
             if (rs.next()) {
-//                String str = rs.getString(1);
                 return rs.getString(1);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
@@ -84,7 +75,6 @@ public class AuthService extends ChannelInboundHandlerAdapter {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return result;
     }
 

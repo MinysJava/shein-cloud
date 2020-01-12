@@ -17,7 +17,6 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     public ServerHandler (String nikName){
         this.nikName = nikName;
     }
-
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         System.out.println("Client connected...");
@@ -76,7 +75,6 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                         break;
                     case ("loginOk"):
                         ctx.writeAndFlush(new Request("loginOk", nikName));
-
                         break;
                 }
             }

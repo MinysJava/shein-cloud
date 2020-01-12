@@ -1,4 +1,3 @@
-import io.netty.util.Timeout;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -19,7 +18,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-import java.util.Timer;
 
 public class MainController implements Initializable {
     @FXML
@@ -28,15 +26,12 @@ public class MainController implements Initializable {
     ListView<String> filesListServer;
     @FXML
     ListView<String> textResultList;
-    @FXML
-    VBox rootNode;
 
     private static String nikName;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Network.sendMsg(new Request("loginOk"));
-
 
         Thread t = new Thread(() -> {
         try {
@@ -75,7 +70,6 @@ public class MainController implements Initializable {
         t.setDaemon(true);
         t.start();
         Network.sendMsg(new Request("refresh"));
-
     }
 
     private void showMsg(String text) {
@@ -155,7 +149,6 @@ public class MainController implements Initializable {
                 e.printStackTrace();
             }
             refreshClientFilesList(nikName);
-
         } else if(filesListServer.getSelectionModel().getSelectedItem() != null) {
             Network.sendMsg(new Request("delete", filesListServer.getSelectionModel().getSelectedItem()));
         }
