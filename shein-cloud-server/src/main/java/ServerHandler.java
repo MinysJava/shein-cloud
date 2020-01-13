@@ -28,7 +28,11 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             if (msg instanceof FileMessage) {
                 FileMessage fm = (FileMessage) msg;
                 Files.write(Paths.get("server_file/" + nikName + "/" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
-                ctx.writeAndFlush(new Message("Файл успешно передан"));
+                if (Files.exists(Paths.get("server_file/" + nikName + "/" + fm.getFilename()))) {
+                    ctx.writeAndFlush(new Message("Файл успешно передан"));
+                } else {
+                    ctx.writeAndFlush(new Message("Файл не был передан"));
+                }
                 refreshServerFileList(ctx);
             }
             if(msg instanceof Request){
@@ -75,6 +79,10 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                         break;
                     case ("loginOk"):
                         ctx.writeAndFlush(new Request("loginOk", nikName));
+                        break;
+                    case ("close"):
+                        ctx.writeAndFlush(new Request("close"));
+                        ctx.close();
                         break;
                 }
             }

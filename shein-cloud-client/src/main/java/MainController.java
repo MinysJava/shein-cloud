@@ -35,18 +35,23 @@ public class MainController implements Initializable {
 
         Thread t = new Thread(() -> {
         try {
-            while (true) {
+            while (Network.online) {
                 AbstractMessage am = Network.readObject();
                 if (am instanceof FileMessage) {
                     FileMessage fm = (FileMessage) am;
                     Files.write(Paths.get("client_file/" + nikName + "/" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+                    if (Files.exists(Paths.get("client_file/" + nikName + "/" + fm.getFilename()))) {
+                        showMsg("Файл успешно скачан");
+                    } else {
+                        showMsg("Файл не был скачан");
+                    }
                 }
-                if (am instanceof Request){
+                if (am instanceof Request) {
                     Request rf = (Request) am;
-                    switch (rf.getCommand()){
+                    switch (rf.getCommand()) {
                         case ("s_refresh"):
-                           refreshServerFilesList(rf.getFileList());
-                           break;
+                            refreshServerFilesList(rf.getFileList());
+                            break;
                         case ("c_refresh"):
                             refreshClientFilesList(nikName);
                             break;
@@ -54,17 +59,18 @@ public class MainController implements Initializable {
                             nikName = rf.getFilename();
                             refreshClientFilesList(nikName);
                             break;
+                        default:
+                            break;
                     }
                 }
-                if (am instanceof Message){
+                if (am instanceof Message) {
                     Message msg = (Message) am;
                     showMsg(msg.getText());
                 }
+
             }
         } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
-        } finally {
-            Network.stop();
         }
         });
         t.setDaemon(true);
@@ -117,9 +123,8 @@ public class MainController implements Initializable {
     }
 
     public void renameFile(ActionEvent actionEvent) {
-        Parent root = null;
         try {
-            root = FXMLLoader.load(getClass().getResource("/Scene.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/Scene.fxml"));
             Stage stage = new Stage();
             Scene scene = new Scene(root, 200, 100);
             stage.setScene(scene);
@@ -130,6 +135,7 @@ public class MainController implements Initializable {
                     Path oldName = Paths.get("client_file/" + nikName + "/" + filesListClient.getSelectionModel().getSelectedItem());
                     Files.move(oldName, oldName.resolveSibling(SceneController.fileName));
                     refreshClientFilesList(nikName);
+                    showMsg("Файл переименован");
                 }
             } else if(filesListServer.getSelectionModel().getSelectedItem() != null) {
                 if (SceneController.fileName != null) {
@@ -145,6 +151,7 @@ public class MainController implements Initializable {
         if(filesListClient.getSelectionModel().getSelectedItem() != null) {
             try {
                 Files.delete(Paths.get("client_file/" + nikName + "/" + filesListClient.getSelectionModel().getSelectedItem()));
+                showMsg("Файл удален");
             } catch (IOException e) {
                 e.printStackTrace();
             }

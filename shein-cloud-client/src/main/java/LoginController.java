@@ -1,5 +1,6 @@
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -11,6 +12,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 import java.net.URL;
@@ -48,11 +50,21 @@ public class LoginController implements Initializable {
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         }
-                                        stage.setTitle(rf.getFilename());
+                                        stage.setTitle("Shein_cloud");
                                         Scene scene = new Scene(root,600, 600);
                                         stage.setScene(scene);
                                         stage.show();
                                         mainLogoStage.getScene().getWindow().hide();
+
+                                        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                                            @Override
+                                            public void handle(WindowEvent event) {
+                                                Network.sendMsg(new Request("close"));
+                                                Platform.exit();
+                                                System.exit(0);
+                                                Network.stop();
+                                            }
+                                        });
                                     }
                                 });
                                 break;
@@ -66,8 +78,8 @@ public class LoginController implements Initializable {
                                 });
                                 break;
                         }
-                        break;
                     }
+                    break;
                 }
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();

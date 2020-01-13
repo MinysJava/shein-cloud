@@ -30,6 +30,14 @@ public class AuthService extends ChannelInboundHandlerAdapter {
                 ctx.writeAndFlush(new Request("loginFail"));
             }
         }
+        if(msg instanceof Request){
+            Request rf = (Request) msg;
+            switch (rf.getCommand()) {
+                case ("close"):
+                    ctx.close();
+                    break;
+            }
+        }
     }
 
     @Override

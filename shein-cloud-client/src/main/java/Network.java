@@ -8,18 +8,22 @@ public class Network {
     private static Socket socket;
     private static ObjectEncoderOutputStream out;
     private static ObjectDecoderInputStream in;
+    public static Boolean online = false;
 
     public static void start() {
         try {
             socket = new Socket("localhost", 8189);
             out = new ObjectEncoderOutputStream(socket.getOutputStream());
             in = new ObjectDecoderInputStream(socket.getInputStream(), 50 * 1024 * 1024);
+            online = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static void stop() {
+
+        online = false;
         try {
             out.close();
         } catch (IOException e) {
@@ -49,7 +53,10 @@ public class Network {
     }
 
     public static AbstractMessage readObject() throws ClassNotFoundException, IOException {
-        Object obj = in.readObject();
-        return (AbstractMessage) obj;
+
+            Object obj = in.readObject();
+            return (AbstractMessage) obj;
+
+
     }
 }
