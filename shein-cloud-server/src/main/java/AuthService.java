@@ -1,3 +1,5 @@
+//Хендлер авторизации
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -7,7 +9,7 @@ public class AuthService extends ChannelInboundHandlerAdapter {
     private static Connection connection;
     private static Statement stmt;
 
-    public static void connection() {
+    public static void connection() {       //Метод для подключяемся к базе user'ов
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:shein-cloud-server\\src\\main\\resources\\udb.db");
@@ -20,9 +22,10 @@ public class AuthService extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if(msg instanceof LoginRequest){
-            LoginRequest lr = (LoginRequest) msg;
-            String nikName = AuthService.getNickByLoginAndPass(lr.getLogin(), lr.getPass());
-            if (nikName != null) {
+            LoginRequest lr = (LoginRequest) msg;       // Получяем логин и пароль
+            String nikName = AuthService.getNickByLoginAndPass(lr.getLogin(), lr.getPass());    //Проверяем их по базе
+            if (nikName != null) {          // Если автоизация прошла то удаляем хендлер авторизации из трубы и добавляем главный хендлер
+                                            // с передачей имени пользователя
                 ctx.pipeline().removeLast();
                 ctx.pipeline().addLast(new ServerHandler(nikName));
                 ctx.writeAndFlush(new Request("loginOk", nikName));
@@ -32,7 +35,7 @@ public class AuthService extends ChannelInboundHandlerAdapter {
         }
         if(msg instanceof Request){
             Request rf = (Request) msg;
-            switch (rf.getCommand()) {
+            switch (rf.getCommand()) {      // обработка команды на закрытие канала при отключении клиента
                 case ("close"):
                     ctx.close();
                     break;
@@ -46,7 +49,7 @@ public class AuthService extends ChannelInboundHandlerAdapter {
         ctx.close();
     }
 
-    public static void setNewUsers(int id, String login, String pass, String nickName) {
+    public static void setNewUsers(int id, String login, String pass, String nickName) {    // метод для добавления нового пользователя
         int hash = pass.hashCode();
         String sql = String.format("INSERT INTO users (id, login, password, nickname) VALUES('%s', '%s', '%s', '%s')", id, login, hash, nickName);
 
@@ -57,7 +60,7 @@ public class AuthService extends ChannelInboundHandlerAdapter {
         }
     }
 
-    public static String getNickByLoginAndPass(String login, String pass) {
+    public static String getNickByLoginAndPass(String login, String pass) {     //Проверяем логин и пароль по базе
         int hash = pass.hashCode();
         String sql = String.format("SELECT nickname FROM users where login = '%s' and password = '%s'", login, hash);
 
@@ -72,21 +75,7 @@ public class AuthService extends ChannelInboundHandlerAdapter {
         return null;
     }
 
-    public static int numberRow() {
-        String sql = String.format("SELECT nickname FROM users");
-        int result = 1;
-
-        try {
-            ResultSet rs1 = stmt.executeQuery(sql);
-            rs1.afterLast();
-            result = rs1.getRow();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    public static void disconnect() {
+    public static void disconnect() {   // Метод для отключения от БД
         try {
             connection.close();
         } catch (SQLException e) {

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 
-    ArrayList<String> fileServerList = new ArrayList<>();
+    ArrayList<String> fileServerList = new ArrayList<>();       // массив для сохранения списка файлов на сервере
     private String nikName;
 
     public ServerHandler (String nikName){
@@ -25,7 +25,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         try {
-            if (msg instanceof FileMessage) {
+            if (msg instanceof FileMessage) {       //Принимаем файл
                 FileMessage fm = (FileMessage) msg;
                 Files.write(Paths.get("server_file/" + nikName + "/" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
                 if (Files.exists(Paths.get("server_file/" + nikName + "/" + fm.getFilename()))) {
@@ -75,7 +75,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                         }
                         break;
                     case ("refresh"):
-                        refreshServerFileList(ctx);
+                        refreshServerFileList(ctx);     // отправляем массиы со списом файлов на сервере по запросу
                         break;
                     case ("loginOk"):
                         ctx.writeAndFlush(new Request("loginOk", nikName));
@@ -99,7 +99,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         ctx.close();
     }
 
-    private void refreshServerFileList(ChannelHandlerContext ctx){
+    private void refreshServerFileList(ChannelHandlerContext ctx){      //Метод для обновления списка файлов на сервере
         try {
             Files.list(Paths.get("server_file/" + nikName + "/")).map(p -> p.getFileName().toString()).forEach(o -> fileServerList.add(o));
             ctx.writeAndFlush(new Request("s_refresh", fileServerList));

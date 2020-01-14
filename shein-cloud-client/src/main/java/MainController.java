@@ -1,3 +1,5 @@
+// Контроллер гоавного окна
+
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -6,7 +8,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -18,6 +19,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+
+
 
 public class MainController implements Initializable {
     @FXML
@@ -31,13 +34,13 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        Network.sendMsg(new Request("loginOk"));
+        Network.sendMsg(new Request("loginOk"));            //Отправляем сообщение на сервер что залогинились чтобы получить Nikname пользователя
 
         Thread t = new Thread(() -> {
         try {
-            while (Network.online) {
+            while (Network.online) {        // принимаем сообщения с Сервера
                 AbstractMessage am = Network.readObject();
-                if (am instanceof FileMessage) {
+                if (am instanceof FileMessage) {    // Прием файла
                     FileMessage fm = (FileMessage) am;
                     Files.write(Paths.get("client_file/" + nikName + "/" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
                     if (Files.exists(Paths.get("client_file/" + nikName + "/" + fm.getFilename()))) {
@@ -46,7 +49,7 @@ public class MainController implements Initializable {
                         showMsg("Файл не был скачан");
                     }
                 }
-                if (am instanceof Request) {
+                if (am instanceof Request) {    // Обработка команд с сервера
                     Request rf = (Request) am;
                     switch (rf.getCommand()) {
                         case ("s_refresh"):
@@ -58,8 +61,6 @@ public class MainController implements Initializable {
                         case ("loginOk"):
                             nikName = rf.getFilename();
                             refreshClientFilesList(nikName);
-                            break;
-                        default:
                             break;
                     }
                 }
@@ -78,13 +79,13 @@ public class MainController implements Initializable {
         Network.sendMsg(new Request("refresh"));
     }
 
-    private void showMsg(String text) {
+    private void showMsg(String text) {  //Метод для отоброжения сообщений в нижнем ListView
         updateUI(() -> {
             textResultList.getItems().add(text);
         });
     }
 
-    private void refreshClientFilesList(String user) {
+    private void refreshClientFilesList(String user) {      //Метод для обновления списка файлов на клиенте
         updateUI(() -> {
             try {
                 filesListClient.getItems().clear();
@@ -95,7 +96,7 @@ public class MainController implements Initializable {
         });
     }
 
-    private void refreshServerFilesList(ArrayList arrayListServer) {
+    private void refreshServerFilesList(ArrayList arrayListServer) {    //Метод для обновления списка файлов на сервере
         updateUI(() -> {
             filesListServer.getItems().clear();
             for (Object o : arrayListServer) {
@@ -112,7 +113,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public void sendFile(ActionEvent actionEvent) {
+    public void sendFile(ActionEvent actionEvent) {     // Метод для отправки выбраного файла на сервер
         try {
             if(filesListClient.getSelectionModel().getSelectedItem() != null) {
                 Network.sendMsg(new FileMessage(Paths.get("client_file/" + nikName + "/" + filesListClient.getSelectionModel().getSelectedItem())));
@@ -122,7 +123,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public void renameFile(ActionEvent actionEvent) {
+    public void renameFile(ActionEvent actionEvent) {   //Метод для  переименования выбраного файла
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/Scene.fxml"));
             Stage stage = new Stage();
@@ -147,7 +148,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public void deleteFile(ActionEvent actionEvent) {
+    public void deleteFile(ActionEvent actionEvent) {           //Метод для удаления выбраного файла
         if(filesListClient.getSelectionModel().getSelectedItem() != null) {
             try {
                 Files.delete(Paths.get("client_file/" + nikName + "/" + filesListClient.getSelectionModel().getSelectedItem()));
@@ -161,7 +162,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public void downloadFile(ActionEvent actionEvent) {
+    public void downloadFile(ActionEvent actionEvent) {             //Метод для скачивания выбраного файла с сервера
         if(filesListServer.getSelectionModel().getSelectedItem() != null) {
             Network.sendMsg(new Request("download", filesListServer.getSelectionModel().getSelectedItem()));
         }

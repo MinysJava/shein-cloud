@@ -1,3 +1,5 @@
+// Коньроллер окна авторизации
+
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -18,6 +20,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+
+
+
 public class LoginController implements Initializable {
     @FXML
     TextField login;
@@ -30,15 +35,15 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        Network.start();
+        Network.start();                                // Создаем соединение
         Thread t = new Thread(() -> {
             try {
                 while (true) {
-                    AbstractMessage am = Network.readObject();
+                    AbstractMessage am = Network.readObject();  //Ловим ответы от сервера
                     if (am instanceof Request){
                         Request rf = (Request) am;
                         switch (rf.getCommand()){
-                            case ("loginOk"):
+                            case ("loginOk"):                       // Если авторизация прошла то запускаем главное окно Main controller
                                 Platform.runLater(new Runnable() {
                                     @Override
                                     public void run() {
@@ -56,7 +61,7 @@ public class LoginController implements Initializable {
                                         stage.show();
                                         mainLogoStage.getScene().getWindow().hide();
 
-                                        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                                        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {   // Обработка нажатия на крестик окна
                                             @Override
                                             public void handle(WindowEvent event) {
                                                 Network.sendMsg(new Request("close"));
@@ -68,7 +73,7 @@ public class LoginController implements Initializable {
                                     }
                                 });
                                 break;
-                            case ("loginFail"):
+                            case ("loginFail"):     // Выводим Alert о не верной авторизации
                                 Platform.runLater(new Runnable() {
                                     @Override
                                     public void run() {
@@ -89,7 +94,7 @@ public class LoginController implements Initializable {
         t.start();
     }
 
-    public void auth(ActionEvent actionEvent) {
+    public void auth(ActionEvent actionEvent) {     // отправляем Логин и пароль на сервер для проверки
         Network.sendMsg( new LoginRequest(login.getText(), password.getText()));
     }
 }
