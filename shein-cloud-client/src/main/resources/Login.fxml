@@ -19,4 +19,11 @@
       <VBox.margin>
          <Insets top="10.0" />
       </VBox.margin></Button>
+    <Button  prefWidth="200" onAction="#exit" text="Exit">
+        <opaqueInsets>
+            <Insets />
+        </opaqueInsets>
+        <VBox.margin>
+            <Insets top="10.0" />
+        </VBox.margin></Button>
 </VBox>

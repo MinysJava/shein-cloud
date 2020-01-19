@@ -95,4 +95,10 @@ public class LoginController implements Initializable {
         t.start();// Создаем соединение
         Network.sendMsg( new LoginRequest(login.getText(), password.getText()));
     }
+
+    public void exit(ActionEvent actionEvent) {
+        Platform.exit();
+        System.exit(0);
+        Network.stop();
+    }
 }
