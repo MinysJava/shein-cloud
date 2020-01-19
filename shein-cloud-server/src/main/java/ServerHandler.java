@@ -77,9 +77,13 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                         refreshServerFileList(ctx);     // отправляем массиы со списом файлов на сервере по запросу
                         break;
                     case ("loginOk"):
-
                         ctx.writeAndFlush(new Request("loginOk", nikName));
                         refreshServerFileList(ctx);
+                        break;
+                    case ("logOut"):
+                        ctx.writeAndFlush(new Close());
+                        ctx.pipeline().removeLast();
+                        ctx.pipeline().addLast(new AuthService());
                         break;
                 }
             }

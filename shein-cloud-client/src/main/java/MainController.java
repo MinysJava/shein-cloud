@@ -2,14 +2,17 @@
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 import java.net.URL;
@@ -27,6 +30,8 @@ public class MainController implements Initializable {
     ListView<String> filesListServer;
     @FXML
     ListView<String> textResultList;
+    @FXML
+    VBox rootNode;
 
     private static String nikName;
 
@@ -164,5 +169,35 @@ public class MainController implements Initializable {
             Network.sendMsg(new Request("download", filesListServer.getSelectionModel().getSelectedItem()));
         }
         refreshClientFilesList();
+    }
+
+    public void exit(ActionEvent actionEvent) {
+        Network.sendMsg(new Close());
+        Platform.exit();
+        System.exit(0);
+        Network.stop();
+    }
+
+    public void changeUser(ActionEvent actionEvent) throws IOException {
+        rootNode.getScene().getWindow().hide();
+        Network.sendMsg(new Request("logOut"));
+
+        Stage stage = new Stage();
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/Login.fxml"));
+        Parent root = fxmlLoader.load();
+        stage.setTitle("Autorization");
+        Scene scene = new Scene(root,400, 200);
+        stage.setScene(scene);
+        stage.show();
+
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                Platform.exit();
+                System.exit(0);
+                Network.stop();
+            }
+        });
+
     }
 }

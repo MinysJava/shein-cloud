@@ -15,15 +15,15 @@ public class Network {
             socket = new Socket("localhost", 8189);
             out = new ObjectEncoderOutputStream(socket.getOutputStream());
             in = new ObjectDecoderInputStream(socket.getInputStream(), 50 * 1024 * 1024);
-            online = true;
+            if (socket.isConnected()){
+                online = true;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static void stop() {
-
-        online = false;
         try {
             out.close();
         } catch (IOException e) {
@@ -38,6 +38,9 @@ public class Network {
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        if (!socket.isConnected()){
+            online = false;
         }
     }
 

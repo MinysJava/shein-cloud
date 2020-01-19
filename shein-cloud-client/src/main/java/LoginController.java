@@ -36,7 +36,10 @@ public class LoginController implements Initializable {
     }
 
     public void auth(ActionEvent actionEvent) {     // отправляем Логин и пароль на сервер для проверки
-        Network.start();
+        if(!Network.online) {
+            Network.start();
+            System.out.println("конект");
+        }
         Thread t = new Thread(() -> {
             try {
                 while (true) {
@@ -92,7 +95,7 @@ public class LoginController implements Initializable {
             }
         });
         t.setDaemon(true);
-        t.start();// Создаем соединение
+        t.start();
         Network.sendMsg( new LoginRequest(login.getText(), password.getText()));
     }
 

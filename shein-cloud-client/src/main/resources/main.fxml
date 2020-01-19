@@ -1,26 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="rootNode" alignment="CENTER"  style="-fx-background-color: linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #bbb 100%);" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
+<VBox fx:id="rootNode" alignment="CENTER" style="-fx-background-color: linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #bbb 100%);" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
+   <HBox>
+    <MenuButton mnemonicParsing="false" prefHeight="25.0" prefWidth="82.0" text="Меню" VBox.vgrow="ALWAYS">
+     <items>
+       <MenuItem mnemonicParsing="false" onAction="#changeUser" text="Сменить пользователя" />
+       <MenuItem mnemonicParsing="false" onAction="#exit" text="Exit" />
+     </items>
+   </MenuButton>
+    </HBox>
     <HBox HBox.hgrow="ALWAYS">
         <VBox HBox.hgrow="ALWAYS">
-            <ListView fx:id="filesListClient"/>
+            <ListView fx:id="filesListClient" />
+
             <HBox>
-                <Button onAction="#sendFile" text="Отправить"/>
-                <Button onAction="#renameFile" text="Переименовать"/>
-                <Button onAction="#deleteFile" text="Удалить"/>
+                <Button onAction="#sendFile" text="Отправить" />
+                <Button onAction="#renameFile" text="Переименовать" />
+                <Button onAction="#deleteFile" text="Удалить" />
             </HBox>
         </VBox>
         <VBox HBox.hgrow="ALWAYS">
-            <ListView fx:id="filesListServer"/>
+            <ListView fx:id="filesListServer" />
             <HBox>
-                <Button onAction="#downloadFile" text="Скачать"/>
+                <Button onAction="#downloadFile" text="Скачать" />
             </HBox>
         </VBox>
     </HBox>
-    <ListView fx:id="textResultList"/>
+    <ListView fx:id="textResultList" />
 </VBox>
