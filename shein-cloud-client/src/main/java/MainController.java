@@ -20,8 +20,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-
-
 public class MainController implements Initializable {
     @FXML
     ListView<String> filesListClient;
@@ -42,9 +40,10 @@ public class MainController implements Initializable {
                 AbstractMessage am = Network.readObject();
                 if (am instanceof FileMessage) {    // Прием файла
                     FileMessage fm = (FileMessage) am;
-                    Files.write(Paths.get("client_file/" + nikName + "/" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
-                    if (Files.exists(Paths.get("client_file/" + nikName + "/" + fm.getFilename()))) {
+                    Files.write(Paths.get("client_file", nikName, fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+                    if (Files.exists(Paths.get("client_file", nikName, fm.getFilename()))) {
                         showMsg("Файл успешно скачан");
+                        refreshClientFilesList();
                     } else {
                         showMsg("Файл не был скачан");
                     }
@@ -55,12 +54,9 @@ public class MainController implements Initializable {
                         case ("s_refresh"):
                             refreshServerFilesList(rf.getFileList());
                             break;
-                        case ("c_refresh"):
-                            refreshClientFilesList(nikName);
-                            break;
                         case ("loginOk"):
                             nikName = rf.getFilename();
-                            refreshClientFilesList(nikName);
+                            refreshClientFilesList();
                             break;
                     }
                 }
@@ -68,7 +64,9 @@ public class MainController implements Initializable {
                     Message msg = (Message) am;
                     showMsg(msg.getText());
                 }
-
+                if (am instanceof Close){
+                    break;
+                }
             }
         } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
@@ -76,7 +74,6 @@ public class MainController implements Initializable {
         });
         t.setDaemon(true);
         t.start();
-        Network.sendMsg(new Request("refresh"));
     }
 
     private void showMsg(String text) {  //Метод для отоброжения сообщений в нижнем ListView
@@ -85,11 +82,11 @@ public class MainController implements Initializable {
         });
     }
 
-    private void refreshClientFilesList(String user) {      //Метод для обновления списка файлов на клиенте
+    private void refreshClientFilesList() {      //Метод для обновления списка файлов на клиенте
         updateUI(() -> {
             try {
                 filesListClient.getItems().clear();
-                Files.list(Paths.get("client_file/" + user + "/")).map(p -> p.getFileName().toString()).forEach(o -> filesListClient.getItems().add(o));
+                Files.list(Paths.get("client_file",nikName)).map(p -> p.getFileName().toString()).forEach(o -> filesListClient.getItems().add(o));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -116,7 +113,7 @@ public class MainController implements Initializable {
     public void sendFile(ActionEvent actionEvent) {     // Метод для отправки выбраного файла на сервер
         try {
             if(filesListClient.getSelectionModel().getSelectedItem() != null) {
-                Network.sendMsg(new FileMessage(Paths.get("client_file/" + nikName + "/" + filesListClient.getSelectionModel().getSelectedItem())));
+                Network.sendMsg(new FileMessage(Paths.get("client_file",nikName, filesListClient.getSelectionModel().getSelectedItem())));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -133,9 +130,9 @@ public class MainController implements Initializable {
             stage.showAndWait();
             if(filesListClient.getSelectionModel().getSelectedItem() != null) {
                 if (SceneController.fileName != null) {
-                    Path oldName = Paths.get("client_file/" + nikName + "/" + filesListClient.getSelectionModel().getSelectedItem());
+                    Path oldName = Paths.get("client_file",nikName, filesListClient.getSelectionModel().getSelectedItem());
                     Files.move(oldName, oldName.resolveSibling(SceneController.fileName));
-                    refreshClientFilesList(nikName);
+                    refreshClientFilesList();
                     showMsg("Файл переименован");
                 }
             } else if(filesListServer.getSelectionModel().getSelectedItem() != null) {
@@ -151,12 +148,12 @@ public class MainController implements Initializable {
     public void deleteFile(ActionEvent actionEvent) {           //Метод для удаления выбраного файла
         if(filesListClient.getSelectionModel().getSelectedItem() != null) {
             try {
-                Files.delete(Paths.get("client_file/" + nikName + "/" + filesListClient.getSelectionModel().getSelectedItem()));
+                Files.delete(Paths.get("client_file",nikName, filesListClient.getSelectionModel().getSelectedItem()));
                 showMsg("Файл удален");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            refreshClientFilesList(nikName);
+            refreshClientFilesList();
         } else if(filesListServer.getSelectionModel().getSelectedItem() != null) {
             Network.sendMsg(new Request("delete", filesListServer.getSelectionModel().getSelectedItem()));
         }
@@ -166,6 +163,6 @@ public class MainController implements Initializable {
         if(filesListServer.getSelectionModel().getSelectedItem() != null) {
             Network.sendMsg(new Request("download", filesListServer.getSelectionModel().getSelectedItem()));
         }
-        refreshClientFilesList(nikName);
+        refreshClientFilesList();
     }
 }

@@ -9,10 +9,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-
-
-
-
 public class Client extends Application {
 
     @Override
@@ -27,8 +23,6 @@ public class Client extends Application {
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
-                Network.sendMsg(new Request("close"));
-
                 Platform.exit();
                 System.exit(0);
                 Network.stop();

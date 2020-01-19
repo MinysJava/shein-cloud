@@ -33,13 +33,8 @@ public class AuthService extends ChannelInboundHandlerAdapter {
                 ctx.writeAndFlush(new Request("loginFail"));
             }
         }
-        if(msg instanceof Request){
-            Request rf = (Request) msg;
-            switch (rf.getCommand()) {      // обработка команды на закрытие канала при отключении клиента
-                case ("close"):
-                    ctx.close();
-                    break;
-            }
+        if(msg instanceof Close){
+            ctx.close();
         }
     }
 

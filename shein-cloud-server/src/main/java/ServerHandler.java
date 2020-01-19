@@ -19,7 +19,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     }
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("Client connected...");
+        System.out.println("Клиент подключился...");
     }
 
     @Override
@@ -27,8 +27,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         try {
             if (msg instanceof FileMessage) {       //Принимаем файл
                 FileMessage fm = (FileMessage) msg;
-                Files.write(Paths.get("server_file/" + nikName + "/" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
-                if (Files.exists(Paths.get("server_file/" + nikName + "/" + fm.getFilename()))) {
+                Files.write(Paths.get("server_file",nikName, fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+                if (Files.exists(Paths.get("server_file", nikName, fm.getFilename()))) {
                     ctx.writeAndFlush(new Message("Файл успешно передан"));
                 } else {
                     ctx.writeAndFlush(new Message("Файл не был передан"));
@@ -39,52 +39,53 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
                 Request rf = (Request) msg;
                 switch (rf.getCommand()){
                     case ("rename"):
-                        if (Files.exists(Paths.get("server_file/" + nikName + "/" + rf.getFilename()))){
-                            Path oldname = Paths.get("server_file/" + nikName + "/" + rf.getFilename());
+                        if (Files.exists(Paths.get("server_file", nikName, rf.getFilename()))){
+                            Path oldname = Paths.get("server_file", nikName, rf.getFilename());
                             Files.move(oldname, oldname.resolveSibling(rf.getNewFilename()));
-                            if(Files.exists(Paths.get("server_file/" + nikName + "/" + rf.getNewFilename()))){
+                            if(Files.exists(Paths.get("server_file",nikName, rf.getNewFilename()))){
                                 refreshServerFileList(ctx);
-                                ctx.writeAndFlush(new Message("Rename File successful."));
+                                ctx.writeAndFlush(new Message("Файл успешно переименован"));
                             } else {
-                                ctx.writeAndFlush(new Message("Rename file error."));
+                                ctx.writeAndFlush(new Message("Ошибка переименования"));
                             }
                         } else {
-                            ctx.writeAndFlush(new Message("Request 'rename': File not found."));
+                            ctx.writeAndFlush(new Message("Файл не найден"));
                         }
                         break;
                     case ("download"):
-                        if (Files.exists(Paths.get("server_file/" + nikName + "/" + rf.getFilename()))) {
-                            FileMessage fms = new FileMessage(Paths.get("server_file/" + nikName + "/" + rf.getFilename()));
+                        if (Files.exists(Paths.get("server_file", nikName, rf.getFilename()))) {
+                            FileMessage fms = new FileMessage(Paths.get("server_file", nikName, rf.getFilename()));
                             ctx.writeAndFlush(fms);
-                            ctx.writeAndFlush(new Request("c_refresh"));
                         } else {
-                            ctx.writeAndFlush(new Message("Request 'send': File not found."));
+                            ctx.writeAndFlush(new Message("Файл не найден"));
                         }
                         break;
                     case ("delete"):
-                        if (Files.exists(Paths.get("server_file/" + nikName + "/" + rf.getFilename()))) {
-                            Files.delete(Paths.get("server_file/" + nikName + "/" + rf.getFilename()));
-                            if(Files.exists(Paths.get("server_file/" + nikName + "/" + rf.getFilename()))){
-                                ctx.writeAndFlush(new Message("Delete File error."));
+                        if (Files.exists(Paths.get("server_file", nikName, rf.getFilename()))) {
+                            Files.delete(Paths.get("server_file", nikName, rf.getFilename()));
+                            if(Files.exists(Paths.get("server_file", nikName, rf.getFilename()))){
+                                ctx.writeAndFlush(new Message("Ошибка удаления"));
                             } else {
                                 refreshServerFileList(ctx);
-                                ctx.writeAndFlush(new Message("Delete file successful."));
+                                ctx.writeAndFlush(new Message("Файл успешно удален"));
                             }
                         } else {
-                            ctx.writeAndFlush(new Message("Request 'delete': File not found."));
+                            ctx.writeAndFlush(new Message("Файл не найден"));
                         }
                         break;
                     case ("refresh"):
                         refreshServerFileList(ctx);     // отправляем массиы со списом файлов на сервере по запросу
                         break;
                     case ("loginOk"):
+
                         ctx.writeAndFlush(new Request("loginOk", nikName));
-                        break;
-                    case ("close"):
-                        ctx.writeAndFlush(new Request("close"));
-                        ctx.close();
+                        refreshServerFileList(ctx);
                         break;
                 }
+            }
+            if(msg instanceof Close){
+                ctx.writeAndFlush(new Close());
+                ctx.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -101,7 +102,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 
     private void refreshServerFileList(ChannelHandlerContext ctx){      //Метод для обновления списка файлов на сервере
         try {
-            Files.list(Paths.get("server_file/" + nikName + "/")).map(p -> p.getFileName().toString()).forEach(o -> fileServerList.add(o));
+            Files.list(Paths.get("server_file",nikName)).map(p -> p.getFileName().toString()).forEach(o -> fileServerList.add(o));
             ctx.writeAndFlush(new Request("s_refresh", fileServerList));
             fileServerList.clear();
         } catch (IOException e) {

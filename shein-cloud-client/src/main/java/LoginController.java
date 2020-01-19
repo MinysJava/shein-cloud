@@ -20,9 +20,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-
-
-
 public class LoginController implements Initializable {
     @FXML
     TextField login;
@@ -35,7 +32,11 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        Network.start();                                // Создаем соединение
+
+    }
+
+    public void auth(ActionEvent actionEvent) {     // отправляем Логин и пароль на сервер для проверки
+        Network.start();
         Thread t = new Thread(() -> {
             try {
                 while (true) {
@@ -64,7 +65,7 @@ public class LoginController implements Initializable {
                                         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {   // Обработка нажатия на крестик окна
                                             @Override
                                             public void handle(WindowEvent event) {
-                                                Network.sendMsg(new Request("close"));
+                                                Network.sendMsg(new Close());
                                                 Platform.exit();
                                                 System.exit(0);
                                                 Network.stop();
@@ -91,10 +92,7 @@ public class LoginController implements Initializable {
             }
         });
         t.setDaemon(true);
-        t.start();
-    }
-
-    public void auth(ActionEvent actionEvent) {     // отправляем Логин и пароль на сервер для проверки
+        t.start();// Создаем соединение
         Network.sendMsg( new LoginRequest(login.getText(), password.getText()));
     }
 }
