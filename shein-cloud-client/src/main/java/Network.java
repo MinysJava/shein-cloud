@@ -8,12 +8,16 @@ public class Network {
     private static Socket socket;
     private static ObjectEncoderOutputStream out;
     private static ObjectDecoderInputStream in;
+    public static Boolean online = false;
 
     public static void start() {
         try {
             socket = new Socket("localhost", 8189);
             out = new ObjectEncoderOutputStream(socket.getOutputStream());
             in = new ObjectDecoderInputStream(socket.getInputStream(), 50 * 1024 * 1024);
+            if (socket.isConnected()){
+                online = true;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -35,6 +39,9 @@ public class Network {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        if (!socket.isConnected()){
+            online = false;
+        }
     }
 
     public static boolean sendMsg(AbstractMessage msg) {
@@ -49,7 +56,10 @@ public class Network {
     }
 
     public static AbstractMessage readObject() throws ClassNotFoundException, IOException {
-        Object obj = in.readObject();
-        return (AbstractMessage) obj;
+
+            Object obj = in.readObject();
+            return (AbstractMessage) obj;
+
+
     }
 }
